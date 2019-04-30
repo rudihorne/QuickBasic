@@ -7,7 +7,7 @@
 DIM line$(1200) ' buffer array
 
 fposy = 1' file position
-lenfile = 2' length of file
+lenfile = 1' length of file
 
 ' reset screen
 CLS
@@ -46,7 +46,7 @@ END IF
 ' page up
 IF user$ = CHR$(0) + CHR$(73) THEN
 	IF fposy >= 25 THEN
-	   fposy = fposy - 24
+	   fposy = fposy - 23
 	   posy = 1
 	ELSE
 	  posy = 1
@@ -57,7 +57,7 @@ END IF
 
 ' page down
 IF user$ = CHR$(0) + CHR$(81) THEN
-	fposy = fposy + 24
+	fposy = fposy + 23
 	IF fposy >= lenfile OR fposy >= 1100 THEN fposy = lenfile
 	GOTO top:
 END IF
@@ -83,8 +83,9 @@ IF user$ = CHR$(13) OR user$ = CHR$(0) + "P" THEN
 	END IF
 	IF user$ = CHR$(13) THEN
 		IF posy = 25 THEN GOTO top:
+	   IF fposy > lenfile THEN lenfile = fposy
 	   lenfile = lenfile + 1
-	   FOR m = 1 TO lenfile - fposy
+	   FOR m = 0 TO lenfile - fposy
 	     line$(lenfile - m) = line$(lenfile - m - 1)
 	   NEXT
       IF posx < 2 THEN
@@ -110,6 +111,11 @@ IF user$ = CHR$(0) + "<" THEN
 		PRINT #1, line$(m)
 	NEXT m
 	CLOSE #1
+	Print filen$;" has been saved. Press any key..."
+	x$=""
+	While x$=""
+		x$=InKey$
+	Wend
 	GOTO top:
 END IF
 ' f3(load)
@@ -153,7 +159,10 @@ IF user$ = CHR$(0) + ";" THEN
 	PRINT " <Esc> - exit"
 	PRINT " Column:"; posx; " Line:"; fposy; " Length:"; lenfile
 	PRINT " Press any key..."
-	SLEEP
+	x$=""
+	While x$=""
+		x$=InKey$
+	Wend
 	GOTO top:
 END IF
 ' Esc(exit)
@@ -183,14 +192,14 @@ IF user$ = CHR$(8) OR user$ = CHR$(0) + "K" THEN
 	END IF
 	IF posx = 1 THEN
 		IF user$ = CHR$(0) + "K" THEN GOTO top:
-		lenfile = lenfile - 1
+		
 		IF fposy > 1 THEN fposy = fposy - 1
 		IF posy > 1 THEN posy = posy - 1
-		IF fposy = lenfile THEN lenfile = lenfile + 1
 		line$(lenfile + 1) = ""
 		FOR m = 1 TO lenfile - fposy
 			line$(fposy + m) = line$(fposy + m + 1)
 		NEXT
+                lenfile = lenfile - 1
 		CLS
 		IF fposy > 1 THEN
 			FOR m = 1 TO 24
